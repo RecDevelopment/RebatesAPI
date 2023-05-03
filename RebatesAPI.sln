@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33403.182
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RebatesAPI", "RebatesAPI.csproj", "{6FBBD57E-E889-405F-AF76-E50A855BF7B7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RECEmailLib", "..\Email components\RECEmailLib\RECEmailLib\RECEmailLib.csproj", "{443D5DF4-7BA7-4559-A66B-32E9434D3F0B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMTPEmailSender", "..\SMTPEmailSender\SMTPEmailSender\SMTPEmailSender.csproj", "{701DFD18-92FE-48F4-9325-E3F2B38F2299}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6FBBD57E-E889-405F-AF76-E50A855BF7B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FBBD57E-E889-405F-AF76-E50A855BF7B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6FBBD57E-E889-405F-AF76-E50A855BF7B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6FBBD57E-E889-405F-AF76-E50A855BF7B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{443D5DF4-7BA7-4559-A66B-32E9434D3F0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{443D5DF4-7BA7-4559-A66B-32E9434D3F0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{443D5DF4-7BA7-4559-A66B-32E9434D3F0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{443D5DF4-7BA7-4559-A66B-32E9434D3F0B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{701DFD18-92FE-48F4-9325-E3F2B38F2299}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{701DFD18-92FE-48F4-9325-E3F2B38F2299}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{701DFD18-92FE-48F4-9325-E3F2B38F2299}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{701DFD18-92FE-48F4-9325-E3F2B38F2299}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AAF1AE25-021E-41F5-8A6D-EB6071631378}
+	EndGlobalSection
+EndGlobal
