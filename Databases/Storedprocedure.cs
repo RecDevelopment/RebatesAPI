@@ -1012,6 +1012,9 @@ This link is valid for the next 24 hours.</br>
                 }
             }
         }
+
+       
+
         public void CallStoredProcedure(IConfiguration configuration)
         {
             //Replace the connection string with your MSSQL Server connection string
@@ -1045,6 +1048,66 @@ This link is valid for the next 24 hours.</br>
                 }
             }
         }
+
+        public async Task<string> SPAFinanceUpdateLocation(string strDatabasestore, IConfiguration configuration, string storedProcedureName, SqlParameter[] parameters, FileLocation fileLocation)
+        {
+            //Replace the connection string with your MSSQL Server connection string
+            if ((strDatabasestore == "Finance") || ((strDatabasestore == "Default")))
+                this.connectionString = configuration.GetConnectionString("DefaultConnection");
+            else if ((strDatabasestore == "Admin"))
+                this.connectionString = configuration.GetConnectionString("AdminConnection");
+            else if ((strDatabasestore == "Auth"))
+                this.connectionString = configuration.GetConnectionString("AuthConnection");
+            else if ((strDatabasestore == "Distributor"))
+                this.connectionString = configuration.GetConnectionString("DistributorConnection");
+            else if ((strDatabasestore == "Log"))
+                this.connectionString = configuration.GetConnectionString("LogConnection");
+
+            int groupid = 0;
+            int userroleid = 0;
+
+            //string storedProcedureName = "YourStoredProcedureName";
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                using (SqlCommand command = new SqlCommand(storedProcedureName, connection))
+                {
+                    //Set the command type to stored procedure
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    //Add any input parameters to the stored procedure if required
+                    command.Parameters.AddWithValue("@fileLocation", fileLocation.fileLocation);
+                    command.Parameters.AddWithValue("@id_no", fileLocation.Id);
+
+                    //Add the output parameter to the stored procedure
+                    SqlParameter outputParameter = new SqlParameter("@SPAResult", SqlDbType.Int);
+                    outputParameter.Direction = ParameterDirection.Output;
+                    command.Parameters.Add(outputParameter);
+
+
+
+                    //Execute the stored procedure
+                    command.ExecuteNonQuery();
+                    //await command.ExecuteNonQueryAsync();
+
+                    int outputValue = int.Parse(outputParameter.Value.ToString());
+
+                    var jsonObject = new JObject();
+                    jsonObject.Add("Result", outputValue);
+
+                    var FirstObject = new JObject();
+                    FirstObject.Add("Output", jsonObject.ToString());
+
+                    string jsongString = FirstObject.ToString();
+
+                    return jsongString;
+
+                }
+            }
+        }
+
 
     }
 }

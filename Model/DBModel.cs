@@ -119,4 +119,10 @@ namespace RebatesAPI.Model
 
         public string passwordConfirm { get; set; }
     }
+
+    public class FileLocation
+    {
+        public string fileLocation { get; set; }
+        public string Id { get; set; }
+    }
 }

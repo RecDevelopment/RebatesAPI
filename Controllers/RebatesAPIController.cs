@@ -205,6 +205,7 @@ namespace RebatesRESTAPI.Controllers
             string xapikey = Request.Headers.Authorization;
             string errorMessage = "";
             string Filename = "";
+            
 
             if (file != null)
             {
@@ -249,17 +250,17 @@ namespace RebatesRESTAPI.Controllers
                 if ((FileExtension == ".xlsx"))
                 {
                     FileHandler fileHandler = new FileHandler();
-                    var files = fileHandler.NewXlsxUploader(file, Distributorcode, SPAFileUploadedBy, configuration);
+                    var files = fileHandler.NewXlsxUploader(file, Distributorcode, SPAFileUploadedBy, configuration, rebatesguid);
                 }
                 else if ((FileExtension == ".xls"))
                 {
                     FileHandler fileHandler = new FileHandler();
-                    var files = fileHandler.NewXLSUploader(file, Distributorcode, SPAFileUploadedBy, configuration);
+                    var files = fileHandler.NewXLSUploader(file, Distributorcode, SPAFileUploadedBy, configuration, rebatesguid);
                 }
                 else if ((FileExtension == ".csv"))
                 {
                     FileHandler fileHandler = new FileHandler();
-                    var files = fileHandler.NewCSVploader(file, Distributorcode, SPAFileUploadedBy, configuration);
+                    var files = fileHandler.NewCSVploader(file, Distributorcode, SPAFileUploadedBy, configuration, rebatesguid);
                 }
 
 
@@ -607,6 +608,28 @@ namespace RebatesRESTAPI.Controllers
             }
         }
 
+        [HttpPost("UpdateFileLocation")]
+        public async Task<string> UpdateFileLocation(FileLocation fileLocation)
+        {
+            string jsonData = "";
+            try
+            {
+                SqlParameter[] sqlParameters = { };
+                bool status;
+                //string xapikey = Request.Headers.Authorization;
+                //status = ValidateAuthorization(xapikey, ref jsonData);
+                //if (status == false)
+                //{
+                //    return jsonData;
+                //}
+                FileUpload Fupload = new FileUpload();
+
+                jsonData = await Fupload.SPAFinanceUpdateLocation("Finance", this.configuration, "SPA_UpdateFileLocation", sqlParameters, fileLocation);
+                
+            }
+            catch (Exception ex) { }
+            return jsonData;
+        }
 
         //[HttpPost("UploadRebatesFile")]
         ////IFormFile file, int Distributorcode

@@ -5,6 +5,8 @@ using Newtonsoft.Json.Linq;
 using OfficeOpenXml;
 using Spire.Xls;
 using Microsoft.VisualBasic.FileIO;
+using System.IO.Compression;
+using RebatesAPI.Utilities;
 
 namespace RebatesAPI.Utility
 {
@@ -15,7 +17,7 @@ namespace RebatesAPI.Utility
 
         }
 
-        public async Task<string> NewXlsxUploader(IFormFile file, int Distributorcode, string SPAFileUploadedBy, IConfiguration configuration)
+        public async Task<string> NewXlsxUploader(IFormFile file, int Distributorcode, string SPAFileUploadedBy, IConfiguration configuration, Guid rebatesguid)
         {
 
             FileUpload spupload = new FileUpload();
@@ -31,7 +33,6 @@ namespace RebatesAPI.Utility
             string jsonString = "";
             int SPAUploadStatus = 3;
             string SPAUploadRemarks = "";
-            Guid rebatesguid = Guid.NewGuid();
 
             SPAcontracttable = spupload.SPAFetchSFDCSPAContractandRates("Finance", configuration, sqlParameters, Distributorcode);
 
@@ -266,6 +267,8 @@ namespace RebatesAPI.Utility
                         //        await bulkCopy.WriteToServerAsync(table);
                         //    }
                         //}
+
+                        var uploaded = await this.CompressFileAndUpload(file, "SPA-RebatesAPI", rebatesguid, Distributorcode, "Claims");
                         if (Finalprocessstatus == "FAIL")
                         {
                             errorMessage = "Upload is successful with data errors";
@@ -335,7 +338,7 @@ namespace RebatesAPI.Utility
             return jsonString;
         }
 
-        public async Task<string> NewXLSUploader(IFormFile file, int Distributorcode, string SPAFileUploadedBy, IConfiguration configuration)
+        public async Task<string> NewXLSUploader(IFormFile file, int Distributorcode, string SPAFileUploadedBy, IConfiguration configuration, Guid rebatesguid)
         {
 
             FileUpload spupload = new FileUpload();
@@ -351,7 +354,6 @@ namespace RebatesAPI.Utility
             string jsonString = "";
             int SPAUploadStatus = 3;
             string SPAUploadRemarks = "";
-            Guid rebatesguid = Guid.NewGuid();
 
             SPAcontracttable = spupload.SPAFetchSFDCSPAContractandRates("Finance", configuration, sqlParameters, Distributorcode);
 
@@ -589,6 +591,8 @@ namespace RebatesAPI.Utility
                     //        await bulkCopy.WriteToServerAsync(table);
                     //    }
                     //}
+
+                    var uploaded = await this.CompressFileAndUpload(file, "SPA-RebatesAPI", rebatesguid, Distributorcode, "Claims");
                     if (Finalprocessstatus == "FAIL")
                     {
                         errorMessage = "Upload is successful with data errors";
@@ -601,6 +605,7 @@ namespace RebatesAPI.Utility
                         Resultcode = "6000";
                         goto Label;
                     }
+                   
                 }
                 else
                 {
@@ -659,7 +664,7 @@ namespace RebatesAPI.Utility
         }
 
 
-        public async Task<string> NewCSVploader(IFormFile file, int Distributorcode, string SPAFileUploadedBy, IConfiguration configuration)
+        public async Task<string> NewCSVploader(IFormFile file, int Distributorcode, string SPAFileUploadedBy, IConfiguration configuration, Guid rebatesguid)
         {
             FileUpload spupload = new FileUpload();
             //jsonData = await Fupload.SPAAdminFetchAccessrights("Admin", this.configuration, "SPAAdmin_UserGroupAccessRightsFetch", sqlParameters, GroupId, UserRole);
@@ -674,7 +679,6 @@ namespace RebatesAPI.Utility
             string jsonString = "";
             int SPAUploadStatus = 3;
             string SPAUploadRemarks = "";
-            Guid rebatesguid = Guid.NewGuid();
 
             SPAcontracttable = spupload.SPAFetchSFDCSPAContractandRates("Finance", configuration, sqlParameters, Distributorcode);
 
@@ -887,6 +891,8 @@ namespace RebatesAPI.Utility
                     //        await bulkCopy.WriteToServerAsync(table);
                     //    }
                     //}
+
+                    var uploaded = await this.CompressFileAndUpload(file, "SPA-RebatesAPI", rebatesguid, Distributorcode, "Claims");
                     if (Finalprocessstatus == "FAIL")
                     {
                         errorMessage = "Upload is successful with data errors";
@@ -906,6 +912,12 @@ namespace RebatesAPI.Utility
             errorMessage = "File uploaded successfully";
             Resultcode = "6000";
             goto Label;
+
+            //////
+
+            
+
+            //////
 
         Label:
             var jsonObject = new JObject();
@@ -930,5 +942,49 @@ namespace RebatesAPI.Utility
             return jsonString;
 
         }
+
+        public async Task<bool> CompressFileAndUpload(IFormFile formFile, string source, Guid ID, int distributorCode, string FileType)
+        {
+            try
+            {
+                byte[] fileBytes;
+                using (var memoryStream = new MemoryStream())
+                {
+                    await formFile.CopyToAsync(memoryStream);
+                    fileBytes = memoryStream.ToArray();
+                }
+
+                byte[] compressedBytes;
+                using (var compressedStream = new MemoryStream())
+                {
+                    using (var gzipStream = new GZipStream(compressedStream, CompressionMode.Compress))
+                    {
+                        await gzipStream.WriteAsync(fileBytes, 0, fileBytes.Length);
+                    }
+                    compressedBytes = compressedStream.ToArray();
+                }
+
+                string compressedBase64String = Convert.ToBase64String(compressedBytes);
+
+                var json = new JObject();
+                json["FileName"] = formFile.FileName;
+                json["FileData"] = compressedBase64String;
+                json["ProcessName"] = FileType;
+                json["DataType"] = "File";
+                json["Source"] = source;
+                json["DistributorCode"] = distributorCode;
+                json["StorageLocation"] = "";
+                json["Id"] = ID;
+
+                AzureQueueHandler azure = new AzureQueueHandler();
+                var result = await azure.writeToAzureQueue(json);
+
+                return result;
+            }
+            catch (Exception ex) { 
+            }
+            return false;
+        }
+
     }
 }
